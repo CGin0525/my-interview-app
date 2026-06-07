@@ -9,28 +9,20 @@ const db = {
 };
 
 async function ai(messages, sys, onStream) {
-  // 将 Claude 格式的 messages 转换为 Gemini 格式
-  const contents = messages.map(m => ({
-    role: m.role === "assistant" ? "model" : "user",
-    parts: [{ text: m.content }],
-  }));
-
-  const body = {
-    systemInstruction: sys ? { parts: [{ text: sys }] } : undefined,
-    contents,
-    generationConfig: { maxOutputTokens: 3000 },
-  };
-
-  const res = await fetch(`${GEMINI_ENDPOINT}?key=${GEMINI_API_KEY}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+  // 调用 Vercel 代理 API
+  const res = await fetch('/api/claude', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ messages, system: sys }),
   });
 
   const data = await res.json();
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  if (!res.ok) {
+    console.error('API Error:', data);
+    throw new Error(data.error?.message || 'API request failed');
+  }
 
-  // Gemini 免费层不支持流式，用 onStream 模拟一次性回调
+  const text = data.content?.[0]?.text || '';
   if (onStream) onStream(text);
   return text;
 }
@@ -755,7 +747,7 @@ function ProjectDetail({ project, onSave, onDelete, onBack, mockQs, onGenMock, l
         <button className="btn bs" onClick={onBack}>← 返回</button>
         <input type="text" value={p.title} onChange={e => u("title", e.target.value)} placeholder="项目标题" style={{ flex: 1, fontSize: 20, fontWeight: 700, border: "none", background: "transparent", padding: 0, outline: "none" }} />
         <button className="btn bp" onClick={() => onSave(p)}>保存</button>
-        {p.id && <button className="btn bd" onClick={() => { if (confirm("确认删除？")) onDelete(p.id); }}>删除</button>}
+        {p.id && <button className="btn bd" onClick={() => { if (window.confirm("确认删除？")) onDelete(p.id); }}>删除</button>}
       </div>
 
       {/* Meta */}
