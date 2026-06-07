@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
-const GEMINI_API_KEY = "YOUR_API_KEY"; // ← 替换成你的 Gemini API Key
-const GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+// const GEMINI_API_KEY = "YOUR_API_KEY"; // ← 替换成你的 Gemini API Key
+// const GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
 const db = {
   get: (k) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch { return null; } },
